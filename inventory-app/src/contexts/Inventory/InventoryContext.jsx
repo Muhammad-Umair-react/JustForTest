@@ -8,52 +8,103 @@ export const InventoryContext = React.createContext();
 
 export const useInventory = () => React.useContext(InventoryContext);
 
-// Mock data for development
+// Mock data for bike parts inventory
 const mockInventoryData = [
   {
     id: '1',
-    name: 'Laptop',
-    category: 'Electronics',
-    price: 1200,
-    costPrice: 800,
+    name: 'Mountain Bike Tire',
+    category: 'Tires',
+    price: 45,
+    costPrice: 30,
     quantity: 25,
-    userId: 'mock-user-123'
+    userId: 'mock-user-123',
+    brand: 'Maxxis',
+    model: 'CrossMark',
+    size: '29x2.25'
   },
   {
     id: '2',
-    name: 'Mouse',
-    category: 'Electronics',
-    price: 25,
-    costPrice: 15,
-    quantity: 150,
-    userId: 'mock-user-123'
+    name: 'Road Bike Chain',
+    category: 'Drivetrain',
+    price: 35,
+    costPrice: 22,
+    quantity: 50,
+    userId: 'mock-user-123',
+    brand: 'Shimano',
+    model: 'HG-601',
+    size: '11-speed'
   },
   {
     id: '3',
-    name: 'Keyboard',
-    category: 'Electronics',
-    price: 75,
-    costPrice: 45,
-    quantity: 5,
-    userId: 'mock-user-123'
+    name: 'Disc Brake Pads',
+    category: 'Brakes',
+    price: 25,
+    costPrice: 15,
+    quantity: 100,
+    userId: 'mock-user-123',
+    brand: 'Shimano',
+    model: 'J02A',
+    size: 'Resin'
   },
   {
     id: '4',
-    name: 'Monitor',
-    category: 'Electronics',
-    price: 300,
-    costPrice: 200,
+    name: 'Carbon Fiber Handlebar',
+    category: 'Handlebars',
+    price: 120,
+    costPrice: 80,
     quantity: 12,
-    userId: 'mock-user-123'
+    userId: 'mock-user-123',
+    brand: 'FSA',
+    model: 'K-Force',
+    size: '42cm'
   },
   {
     id: '5',
-    name: 'Desk Chair',
-    category: 'Furniture',
-    price: 180,
-    costPrice: 120,
-    quantity: 8,
-    userId: 'mock-user-123'
+    name: 'Bike Chain Lube',
+    category: 'Maintenance',
+    price: 12,
+    costPrice: 8,
+    quantity: 75,
+    userId: 'mock-user-123',
+    brand: 'Finish Line',
+    model: 'Wet Lube',
+    size: '120ml'
+  },
+  {
+    id: '6',
+    name: 'Bike Helmet',
+    category: 'Safety',
+    price: 85,
+    costPrice: 55,
+    quantity: 20,
+    userId: 'mock-user-123',
+    brand: 'Giro',
+    model: 'Aether',
+    size: 'Medium'
+  },
+  {
+    id: '7',
+    name: 'Bike Pedals',
+    category: 'Pedals',
+    price: 65,
+    costPrice: 40,
+    quantity: 30,
+    userId: 'mock-user-123',
+    brand: 'Shimano',
+    model: 'SPD',
+    size: 'Clipless'
+  },
+  {
+    id: '8',
+    name: 'Inner Tube',
+    category: 'Tires',
+    price: 8,
+    costPrice: 5,
+    quantity: 200,
+    userId: 'mock-user-123',
+    brand: 'Continental',
+    model: 'Race',
+    size: '700x23-28c'
   }
 ];
 
@@ -133,6 +184,10 @@ export const InventoryProvider = ({ children }) => {
     return categorySet.size;
   }, [items]);
 
+  const lowStockItems = useMemo(() => {
+    return items.filter(item => item.quantity <= 10);
+  }, [items]);
+
   const value = {
     items,
     isLoading,
@@ -142,6 +197,7 @@ export const InventoryProvider = ({ children }) => {
     totalPotentialProfit,
     profitMargin,
     categories,
+    lowStockItems,
   };
 
   return (

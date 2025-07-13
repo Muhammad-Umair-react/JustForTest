@@ -1,4 +1,5 @@
 import { Layout, Menu } from 'antd';
+import { useNavigate, useLocation } from 'react-router-dom';
 import {
   DashboardOutlined,
   ShoppingCartOutlined,
@@ -13,9 +14,12 @@ import {
 const { Sider } = Layout;
 
 const Sidebar = ({ collapsed, onCollapse }) => {
+  const navigate = useNavigate();
+  const location = useLocation();
+
   const menuItems = [
     {
-      key: 'dashboard',
+      key: '/',
       icon: <DashboardOutlined />,
       label: 'Dashboard',
     },
@@ -25,15 +29,15 @@ const Sidebar = ({ collapsed, onCollapse }) => {
       label: 'Inventory',
       children: [
         {
-          key: 'products',
+          key: '/products',
           label: 'Products',
         },
         {
-          key: 'categories',
+          key: '/categories',
           label: 'Categories',
         },
         {
-          key: 'suppliers',
+          key: '/suppliers',
           label: 'Suppliers',
         },
       ],
@@ -44,11 +48,11 @@ const Sidebar = ({ collapsed, onCollapse }) => {
       label: 'Orders',
       children: [
         {
-          key: 'purchase-orders',
+          key: '/purchase-orders',
           label: 'Purchase Orders',
         },
         {
-          key: 'sales-orders',
+          key: '/sales-orders',
           label: 'Sales Orders',
         },
       ],
@@ -59,30 +63,63 @@ const Sidebar = ({ collapsed, onCollapse }) => {
       label: 'Reports',
       children: [
         {
-          key: 'inventory-report',
+          key: '/inventory-report',
           label: 'Inventory Report',
         },
         {
-          key: 'sales-report',
+          key: '/sales-report',
           label: 'Sales Report',
         },
       ],
     },
     {
-      key: 'users',
+      key: '/users',
       icon: <UserOutlined />,
       label: 'Users',
     },
     {
-      key: 'settings',
+      key: '/settings',
       icon: <SettingOutlined />,
       label: 'Settings',
     },
   ];
 
   const handleMenuClick = ({ key }) => {
-    console.log('Menu item clicked:', key);
-    // Handle navigation logic here
+    navigate(key);
+  };
+
+  const getSelectedKeys = () => {
+    const path = location.pathname;
+    // If on root path, select dashboard
+    if (path === '/') return ['/'];
+    
+    // Find the menu item that matches the current path
+    for (const item of menuItems) {
+      if (item.key === path) return [path];
+      if (item.children) {
+        for (const child of item.children) {
+          if (child.key === path) return [path];
+        }
+      }
+    }
+    return ['/'];
+  };
+
+  const getOpenKeys = () => {
+    const path = location.pathname;
+    const openKeys = [];
+    
+    for (const item of menuItems) {
+      if (item.children) {
+        for (const child of item.children) {
+          if (child.key === path) {
+            openKeys.push(item.key);
+            break;
+          }
+        }
+      }
+    }
+    return openKeys;
   };
 
   return (
@@ -98,6 +135,7 @@ const Sidebar = ({ collapsed, onCollapse }) => {
         top: 0,
         bottom: 0,
         backgroundColor: '#001529',
+        zIndex: 1000,
       }}
     >
       <div
@@ -126,7 +164,8 @@ const Sidebar = ({ collapsed, onCollapse }) => {
       <Menu
         theme="dark"
         mode="inline"
-        defaultSelectedKeys={['dashboard']}
+        selectedKeys={getSelectedKeys()}
+        defaultOpenKeys={getOpenKeys()}
         items={menuItems}
         onClick={handleMenuClick}
         style={{

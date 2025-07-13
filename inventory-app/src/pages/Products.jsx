@@ -1,97 +1,108 @@
-import { useState } from 'react';
-import { Table, Button, Space, Tag, Modal, Form, Input, InputNumber, Select, message } from 'antd';
-import { PlusOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
+import React, { useState } from 'react';
+import { Table, Button, Space, Tag, Modal, Form, Input, InputNumber, Select, message, Spin, Card } from 'antd';
+import { PlusOutlined, EditOutlined, DeleteOutlined, SearchOutlined } from '@ant-design/icons';
+import { useInventory } from '../contexts/Inventory/InventoryContext';
 
 const { Option } = Select;
+const { Search } = Input;
 
 const Products = () => {
-  const [products, setProducts] = useState([
-    {
-      key: '1',
-      id: 'P001',
-      name: 'Laptop',
-      category: 'Electronics',
-      price: 1200,
-      stock: 25,
-      status: 'In Stock',
-      supplier: 'Tech Corp',
-    },
-    {
-      key: '2',
-      id: 'P002',
-      name: 'Mouse',
-      category: 'Electronics',
-      price: 25,
-      stock: 150,
-      status: 'In Stock',
-      supplier: 'Accessories Inc',
-    },
-    {
-      key: '3',
-      id: 'P003',
-      name: 'Keyboard',
-      category: 'Electronics',
-      price: 75,
-      stock: 5,
-      status: 'Low Stock',
-      supplier: 'Tech Corp',
-    },
-  ]);
-
+  const { items, isLoading } = useInventory();
+  const [filteredItems, setFilteredItems] = useState([]);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [editingProduct, setEditingProduct] = useState(null);
   const [form] = Form.useForm();
 
+  // Use items from context as the base data
+  const [products, setProducts] = useState(items);
+
+  // Update products when items change
+  React.useEffect(() => {
+    setProducts(items);
+    setFilteredItems(items);
+  }, [items]);
+
+  const bikeCategories = [
+    'Tires',
+    'Drivetrain',
+    'Brakes',
+    'Handlebars',
+    'Maintenance',
+    'Safety',
+    'Pedals',
+    'Wheels',
+    'Frames',
+    'Accessories'
+  ];
+
   const columns = [
     {
-      title: 'Product ID',
-      dataIndex: 'id',
-      key: 'id',
-    },
-    {
-      title: 'Name',
+      title: 'Product Name',
       dataIndex: 'name',
       key: 'name',
+      sorter: (a, b) => a.name.localeCompare(b.name),
+    },
+    {
+      title: 'Brand',
+      dataIndex: 'brand',
+      key: 'brand',
+      sorter: (a, b) => (a.brand || '').localeCompare(b.brand || ''),
     },
     {
       title: 'Category',
       dataIndex: 'category',
       key: 'category',
+      filters: bikeCategories.map(cat => ({ text: cat, value: cat })),
+      onFilter: (value, record) => record.category === value,
+      render: (category) => <Tag color="blue">{category}</Tag>,
     },
     {
       title: 'Price',
       dataIndex: 'price',
       key: 'price',
+      sorter: (a, b) => a.price - b.price,
       render: (price) => `$${price}`,
     },
     {
-      title: 'Stock',
-      dataIndex: 'stock',
-      key: 'stock',
+      title: 'Cost Price',
+      dataIndex: 'costPrice',
+      key: 'costPrice',
+      sorter: (a, b) => (a.costPrice || 0) - (b.costPrice || 0),
+      render: (costPrice) => `$${costPrice || 0}`,
     },
     {
-      title: 'Status',
-      dataIndex: 'status',
-      key: 'status',
-      render: (status) => {
-        const colors = {
-          'In Stock': 'green',
-          'Low Stock': 'orange',
-          'Out of Stock': 'red',
-        };
-        return <Tag color={colors[status]}>{status}</Tag>;
+      title: 'Stock',
+      dataIndex: 'quantity',
+      key: 'quantity',
+      sorter: (a, b) => a.quantity - b.quantity,
+      render: (quantity) => {
+        const color = quantity <= 5 ? 'red' : quantity <= 10 ? 'orange' : 'green';
+        return <Tag color={color}>{quantity} units</Tag>;
       },
     },
     {
-      title: 'Supplier',
-      dataIndex: 'supplier',
-      key: 'supplier',
+      title: 'Profit Margin',
+      key: 'profitMargin',
+      render: (_, record) => {
+        const margin = record.costPrice ? 
+          ((record.price - record.costPrice) / record.price * 100).toFixed(1) : 0;
+        const color = margin > 30 ? 'green' : margin > 15 ? 'orange' : 'red';
+        return <Tag color={color}>{margin}%</Tag>;
+      },
+    },
+    {
+      title: 'Size/Model',
+      dataIndex: 'size',
+      key: 'size',
+      render: (size) => size || 'N/A',
     },
     {
       title: 'Actions',
       key: 'actions',
+      fixed: 'right',
+      width: 150,
       render: (_, record) => (
-        <Space size="middle">
+        <Space size="small">
           <Button
             type="primary"
             icon={<EditOutlined />}
@@ -105,7 +116,7 @@ const Products = () => {
             danger
             icon={<DeleteOutlined />}
             size="small"
-            onClick={() => handleDelete(record.key)}
+            onClick={() => handleDelete(record.id)}
           >
             Delete
           </Button>
@@ -113,6 +124,19 @@ const Products = () => {
       ),
     },
   ];
+
+  const handleSearch = (value) => {
+    if (!value) {
+      setFilteredItems(products);
+    } else {
+      const filtered = products.filter(product =>
+        product.name.toLowerCase().includes(value.toLowerCase()) ||
+        product.brand.toLowerCase().includes(value.toLowerCase()) ||
+        product.category.toLowerCase().includes(value.toLowerCase())
+      );
+      setFilteredItems(filtered);
+    }
+  };
 
   const handleAdd = () => {
     setEditingProduct(null);
@@ -126,7 +150,7 @@ const Products = () => {
     setIsModalVisible(true);
   };
 
-  const handleDelete = (key) => {
+  const handleDelete = (id) => {
     Modal.confirm({
       title: 'Are you sure you want to delete this product?',
       content: 'This action cannot be undone.',
@@ -134,7 +158,9 @@ const Products = () => {
       okType: 'danger',
       cancelText: 'No',
       onOk() {
-        setProducts(products.filter(product => product.key !== key));
+        const updatedProducts = products.filter(product => product.id !== id);
+        setProducts(updatedProducts);
+        setFilteredItems(updatedProducts);
         message.success('Product deleted successfully');
       },
     });
@@ -143,48 +169,78 @@ const Products = () => {
   const handleSubmit = (values) => {
     if (editingProduct) {
       // Update existing product
-      setProducts(products.map(product =>
-        product.key === editingProduct.key
+      const updatedProducts = products.map(product =>
+        product.id === editingProduct.id
           ? { ...product, ...values }
           : product
-      ));
+      );
+      setProducts(updatedProducts);
+      setFilteredItems(updatedProducts);
       message.success('Product updated successfully');
     } else {
       // Add new product
       const newProduct = {
-        key: Date.now().toString(),
-        id: `P${String(products.length + 1).padStart(3, '0')}`,
+        id: Date.now().toString(),
         ...values,
-        status: values.stock > 10 ? 'In Stock' : values.stock > 0 ? 'Low Stock' : 'Out of Stock',
+        userId: 'mock-user-123',
       };
-      setProducts([...products, newProduct]);
+      const updatedProducts = [...products, newProduct];
+      setProducts(updatedProducts);
+      setFilteredItems(updatedProducts);
       message.success('Product added successfully');
     }
     setIsModalVisible(false);
     form.resetFields();
   };
 
+  if (isLoading) {
+    return (
+      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '400px' }}>
+        <Spin size="large" />
+      </div>
+    );
+  }
+
   return (
     <div>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
-        <h2 style={{ margin: 0, color: '#1890ff' }}>Products</h2>
-        <Button type="primary" icon={<PlusOutlined />} onClick={handleAdd}>
-          Add Product
-        </Button>
-      </div>
+      <Card>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
+          <h2 style={{ margin: 0, color: '#1890ff' }}>🚴‍♂️ Bike Parts Products</h2>
+          <Button type="primary" icon={<PlusOutlined />} onClick={handleAdd}>
+            Add Product
+          </Button>
+        </div>
 
-      <Table
-        columns={columns}
-        dataSource={products}
-        pagination={{ pageSize: 10 }}
-        size="small"
-      />
+        <div style={{ marginBottom: '16px' }}>
+          <Search
+            placeholder="Search by name, brand, or category"
+            allowClear
+            onSearch={handleSearch}
+            style={{ width: 300 }}
+            prefix={<SearchOutlined />}
+          />
+        </div>
+
+        <Table
+          columns={columns}
+          dataSource={filteredItems}
+          pagination={{ 
+            pageSize: 10,
+            showSizeChanger: true,
+            showTotal: (total, range) => `${range[0]}-${range[1]} of ${total} items`,
+          }}
+          size="small"
+          scroll={{ x: 1200 }}
+          rowKey="id"
+        />
+      </Card>
 
       <Modal
-        title={editingProduct ? 'Edit Product' : 'Add Product'}
-        visible={isModalVisible}
+        title={editingProduct ? 'Edit Product' : 'Add New Bike Part'}
+        open={isModalVisible}
         onCancel={() => setIsModalVisible(false)}
         footer={null}
+        width={600}
       >
         <Form
           form={form}
@@ -196,7 +252,15 @@ const Products = () => {
             name="name"
             rules={[{ required: true, message: 'Please input product name!' }]}
           >
-            <Input />
+            <Input placeholder="e.g., Mountain Bike Tire" />
+          </Form.Item>
+
+          <Form.Item
+            label="Brand"
+            name="brand"
+            rules={[{ required: true, message: 'Please input brand!' }]}
+          >
+            <Input placeholder="e.g., Shimano, Maxxis, etc." />
           </Form.Item>
 
           <Form.Item
@@ -204,37 +268,67 @@ const Products = () => {
             name="category"
             rules={[{ required: true, message: 'Please select category!' }]}
           >
-            <Select>
-              <Option value="Electronics">Electronics</Option>
-              <Option value="Clothing">Clothing</Option>
-              <Option value="Books">Books</Option>
-              <Option value="Home">Home</Option>
+            <Select placeholder="Select category">
+              {bikeCategories.map(category => (
+                <Option key={category} value={category}>{category}</Option>
+              ))}
             </Select>
           </Form.Item>
 
-          <Form.Item
-            label="Price"
-            name="price"
-            rules={[{ required: true, message: 'Please input price!' }]}
-          >
-            <InputNumber min={0} step={0.01} style={{ width: '100%' }} />
-          </Form.Item>
+          <div style={{ display: 'flex', gap: '16px' }}>
+            <Form.Item
+              label="Selling Price"
+              name="price"
+              rules={[{ required: true, message: 'Please input selling price!' }]}
+              style={{ flex: 1 }}
+            >
+              <InputNumber 
+                min={0} 
+                step={0.01} 
+                style={{ width: '100%' }}
+                prefix="$"
+                placeholder="0.00"
+              />
+            </Form.Item>
 
-          <Form.Item
-            label="Stock"
-            name="stock"
-            rules={[{ required: true, message: 'Please input stock quantity!' }]}
-          >
-            <InputNumber min={0} style={{ width: '100%' }} />
-          </Form.Item>
+            <Form.Item
+              label="Cost Price"
+              name="costPrice"
+              rules={[{ required: true, message: 'Please input cost price!' }]}
+              style={{ flex: 1 }}
+            >
+              <InputNumber 
+                min={0} 
+                step={0.01} 
+                style={{ width: '100%' }}
+                prefix="$"
+                placeholder="0.00"
+              />
+            </Form.Item>
+          </div>
 
-          <Form.Item
-            label="Supplier"
-            name="supplier"
-            rules={[{ required: true, message: 'Please input supplier!' }]}
-          >
-            <Input />
-          </Form.Item>
+          <div style={{ display: 'flex', gap: '16px' }}>
+            <Form.Item
+              label="Stock Quantity"
+              name="quantity"
+              rules={[{ required: true, message: 'Please input stock quantity!' }]}
+              style={{ flex: 1 }}
+            >
+              <InputNumber 
+                min={0} 
+                style={{ width: '100%' }}
+                placeholder="0"
+              />
+            </Form.Item>
+
+            <Form.Item
+              label="Size/Model"
+              name="size"
+              style={{ flex: 1 }}
+            >
+              <Input placeholder="e.g., 29x2.25, 11-speed, etc." />
+            </Form.Item>
+          </div>
 
           <Form.Item>
             <Space>
