@@ -1,13 +1,28 @@
-import MainLayout from './components/layout/MainLayout';
-import Dashboard from './pages/Dashboard';
-import 'antd/dist/reset.css';
+import { useState } from 'react'
+import { ThemeProvider, createTheme } from '@mui/material/styles';
+import CssBaseline from '@mui/material/CssBaseline';
+import DriverActivities from './components/DriverActivities'
+
+const theme = createTheme({
+  palette: {
+    primary: {
+      main: '#1976d2',
+    },
+    secondary: {
+      main: '#dc004e',
+    },
+  },
+});
 
 function App() {
   return (
-    <MainLayout>
-      <Dashboard />
-    </MainLayout>
-  );
+    <ThemeProvider theme={theme}>
+      <CssBaseline />
+      <div className="App">
+        <DriverActivities />
+      </div>
+    </ThemeProvider>
+  )
 }
 
-export default App;
+export default App
