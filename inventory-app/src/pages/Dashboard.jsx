@@ -1,111 +1,116 @@
-import { Card, Col, Row, Statistic, Table, Tag } from 'antd';
+import { Card, Col, Row, Statistic, Table, Tag, Progress, Timeline, Space } from 'antd';
 import {
-  ShoppingCartOutlined,
-  AppstoreOutlined,
-  UserOutlined,
+  TeamOutlined,
+  FileTextOutlined,
+  CalendarOutlined,
+  ScheduleOutlined,
   DollarOutlined,
-  ArrowUpOutlined,
-  ArrowDownOutlined,
+  HeartOutlined,
+  CheckCircleOutlined,
+  ClockCircleOutlined,
 } from '@ant-design/icons';
+import dayjs from 'dayjs';
 
 const Dashboard = () => {
   // Sample data for statistics
   const statisticsData = [
     {
-      title: 'Total Products',
-      value: 1234,
-      icon: <AppstoreOutlined />,
+      title: 'Family Members',
+      value: 11,
+      icon: <TeamOutlined />,
       color: '#1890ff',
-      trend: 'up',
-      percentage: 12.5,
     },
     {
-      title: 'Total Orders',
-      value: 856,
-      icon: <ShoppingCartOutlined />,
+      title: 'Medical Reports',
+      value: 8,
+      icon: <FileTextOutlined />,
       color: '#52c41a',
-      trend: 'up',
-      percentage: 8.3,
     },
     {
-      title: 'Total Revenue',
-      value: 45678,
-      prefix: '$',
-      icon: <DollarOutlined />,
+      title: 'Today\'s Tasks',
+      value: 4,
+      icon: <ScheduleOutlined />,
       color: '#faad14',
-      trend: 'up',
-      percentage: 15.2,
     },
     {
-      title: 'Active Users',
-      value: 234,
-      icon: <UserOutlined />,
+      title: 'Pending Appointments',
+      value: 2,
+      icon: <CalendarOutlined />,
       color: '#722ed1',
-      trend: 'down',
-      percentage: 2.1,
     },
   ];
 
-  // Sample data for recent orders table
-  const recentOrdersData = [
+  // Sample data for today's tasks
+  const todayTasksData = [
     {
       key: '1',
-      orderId: 'ORD001',
-      customer: 'John Doe',
-      product: 'Laptop',
-      quantity: 2,
-      total: 2500,
+      task: 'Open main door lock',
+      assignedTo: 'Brother 1',
+      time: '06:00',
       status: 'Completed',
-      date: '2024-01-15',
+      priority: 'High',
     },
     {
       key: '2',
-      orderId: 'ORD002',
-      customer: 'Jane Smith',
-      product: 'Mouse',
-      quantity: 10,
-      total: 250,
+      task: 'Turn on motor to fill water tank',
+      assignedTo: 'Brother 2',
+      time: '06:30',
       status: 'Pending',
-      date: '2024-01-14',
+      priority: 'High',
     },
     {
       key: '3',
-      orderId: 'ORD003',
-      customer: 'Bob Johnson',
-      product: 'Keyboard',
-      quantity: 5,
-      total: 375,
-      status: 'Processing',
-      date: '2024-01-13',
+      task: 'Fill drinking water drum',
+      assignedTo: 'Brother 3',
+      time: '07:00',
+      status: 'Pending',
+      priority: 'Medium',
+    },
+    {
+      key: '4',
+      task: 'Collect money for water expenses',
+      assignedTo: 'Admin (You)',
+      time: '08:00',
+      status: 'Pending',
+      priority: 'High',
     },
   ];
 
   const columns = [
     {
-      title: 'Order ID',
-      dataIndex: 'orderId',
-      key: 'orderId',
+      title: 'Task',
+      dataIndex: 'task',
+      key: 'task',
     },
     {
-      title: 'Customer',
-      dataIndex: 'customer',
-      key: 'customer',
+      title: 'Assigned To',
+      dataIndex: 'assignedTo',
+      key: 'assignedTo',
+      render: (text) => <Tag color="blue">{text}</Tag>,
     },
     {
-      title: 'Product',
-      dataIndex: 'product',
-      key: 'product',
+      title: 'Time',
+      dataIndex: 'time',
+      key: 'time',
+      render: (time) => (
+        <Space>
+          <ClockCircleOutlined />
+          {time}
+        </Space>
+      ),
     },
     {
-      title: 'Quantity',
-      dataIndex: 'quantity',
-      key: 'quantity',
-    },
-    {
-      title: 'Total',
-      dataIndex: 'total',
-      key: 'total',
-      render: (value) => `$${value}`,
+      title: 'Priority',
+      dataIndex: 'priority',
+      key: 'priority',
+      render: (priority) => {
+        const colors = {
+          High: 'red',
+          Medium: 'orange',
+          Low: 'green',
+        };
+        return <Tag color={colors[priority]}>{priority}</Tag>;
+      },
     },
     {
       title: 'Status',
@@ -115,21 +120,20 @@ const Dashboard = () => {
         const colors = {
           Completed: 'green',
           Pending: 'orange',
-          Processing: 'blue',
+          'In Progress': 'blue',
         };
-        return <Tag color={colors[status]}>{status}</Tag>;
+        const icon = status === 'Completed' ? <CheckCircleOutlined /> : null;
+        return <Tag color={colors[status]} icon={icon}>{status}</Tag>;
       },
-    },
-    {
-      title: 'Date',
-      dataIndex: 'date',
-      key: 'date',
     },
   ];
 
   return (
     <div>
-      <h2 style={{ marginBottom: '24px', color: '#1890ff' }}>Dashboard</h2>
+      <h2 style={{ marginBottom: '24px', color: '#1890ff' }}>
+        <TeamOutlined style={{ marginRight: 8 }} />
+        Family Task Management Dashboard
+      </h2>
       
       {/* Statistics Cards */}
       <Row gutter={[16, 16]} style={{ marginBottom: '24px' }}>
@@ -139,20 +143,7 @@ const Dashboard = () => {
               <Statistic
                 title={stat.title}
                 value={stat.value}
-                prefix={stat.prefix}
                 valueStyle={{ color: stat.color }}
-                suffix={
-                  <div style={{ fontSize: '14px', marginLeft: '8px' }}>
-                    {stat.trend === 'up' ? (
-                      <ArrowUpOutlined style={{ color: '#52c41a' }} />
-                    ) : (
-                      <ArrowDownOutlined style={{ color: '#ff4d4f' }} />
-                    )}
-                    <span style={{ marginLeft: '4px' }}>
-                      {stat.percentage}%
-                    </span>
-                  </div>
-                }
               />
               <div style={{ marginTop: '16px', fontSize: '32px', color: stat.color }}>
                 {stat.icon}
@@ -162,11 +153,11 @@ const Dashboard = () => {
         ))}
       </Row>
 
-      {/* Recent Orders Table */}
-      <Card title="Recent Orders" style={{ marginBottom: '24px' }}>
+      {/* Today's Tasks Table */}
+      <Card title="Today's Tasks" style={{ marginBottom: '24px' }}>
         <Table
           columns={columns}
-          dataSource={recentOrdersData}
+          dataSource={todayTasksData}
           pagination={false}
           size="small"
         />
@@ -175,27 +166,57 @@ const Dashboard = () => {
       {/* Additional Cards */}
       <Row gutter={[16, 16]}>
         <Col xs={24} md={12}>
-          <Card title="Low Stock Items" size="small">
-            <p>Items that need restocking soon:</p>
-            <ul>
-              <li>Laptop Stand - 5 units remaining</li>
-              <li>USB Cable - 8 units remaining</li>
-              <li>Wireless Mouse - 12 units remaining</li>
-            </ul>
+          <Card title="Task Completion Progress" size="small">
+            <Progress
+              percent={25}
+              status="active"
+              strokeColor={{
+                '0%': '#108ee9',
+                '100%': '#87d068',
+              }}
+            />
+            <div style={{ marginTop: 16 }}>
+              <div>✅ Completed: 1 task</div>
+              <div>⏳ Pending: 3 tasks</div>
+            </div>
           </Card>
         </Col>
         <Col xs={24} md={12}>
           <Card title="Quick Actions" size="small">
             <p>Frequently used actions:</p>
             <ul>
-              <li>Add New Product</li>
-              <li>Create Purchase Order</li>
-              <li>Generate Report</li>
-              <li>Manage Categories</li>
+              <li>Add Medical Report</li>
+              <li>Schedule Appointment</li>
+              <li>Assign Daily Task</li>
+              <li>Track Expenses</li>
             </ul>
           </Card>
         </Col>
       </Row>
+
+      {/* Timeline View */}
+      <Card title="Today's Timeline" style={{ marginTop: '24px' }}>
+        <Timeline>
+          {todayTasksData.map(task => (
+            <Timeline.Item
+              key={task.key}
+              color={task.status === 'Completed' ? 'green' : 'orange'}
+            >
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div>
+                  <div style={{ fontWeight: 'bold' }}>{task.task}</div>
+                  <div style={{ fontSize: '12px', color: '#666' }}>
+                    Assigned to: {task.assignedTo} | {task.time}
+                  </div>
+                </div>
+                <Tag color={task.status === 'Completed' ? 'green' : 'orange'}>
+                  {task.status}
+                </Tag>
+              </div>
+            </Timeline.Item>
+          ))}
+        </Timeline>
+      </Card>
     </div>
   );
 };

@@ -1,10 +1,12 @@
 import { Layout, Menu } from 'antd';
+import { useNavigate, useLocation } from 'react-router-dom';
 import {
   DashboardOutlined,
-  ShoppingCartOutlined,
-  AppstoreOutlined,
-  UserOutlined,
-  BarChartOutlined,
+  FileTextOutlined,
+  CalendarOutlined,
+  ScheduleOutlined,
+  TeamOutlined,
+  DollarOutlined,
   SettingOutlined,
   MenuFoldOutlined,
   MenuUnfoldOutlined,
@@ -13,6 +15,8 @@ import {
 const { Sider } = Layout;
 
 const Sidebar = ({ collapsed, onCollapse }) => {
+  const navigate = useNavigate();
+  const location = useLocation();
   const menuItems = [
     {
       key: 'dashboard',
@@ -20,58 +24,29 @@ const Sidebar = ({ collapsed, onCollapse }) => {
       label: 'Dashboard',
     },
     {
-      key: 'inventory',
-      icon: <AppstoreOutlined />,
-      label: 'Inventory',
-      children: [
-        {
-          key: 'products',
-          label: 'Products',
-        },
-        {
-          key: 'categories',
-          label: 'Categories',
-        },
-        {
-          key: 'suppliers',
-          label: 'Suppliers',
-        },
-      ],
+      key: 'medical-reports',
+      icon: <FileTextOutlined />,
+      label: 'Medical Reports',
     },
     {
-      key: 'orders',
-      icon: <ShoppingCartOutlined />,
-      label: 'Orders',
-      children: [
-        {
-          key: 'purchase-orders',
-          label: 'Purchase Orders',
-        },
-        {
-          key: 'sales-orders',
-          label: 'Sales Orders',
-        },
-      ],
+      key: 'appointments',
+      icon: <CalendarOutlined />,
+      label: 'Appointments',
     },
     {
-      key: 'reports',
-      icon: <BarChartOutlined />,
-      label: 'Reports',
-      children: [
-        {
-          key: 'inventory-report',
-          label: 'Inventory Report',
-        },
-        {
-          key: 'sales-report',
-          label: 'Sales Report',
-        },
-      ],
+      key: 'daily-schedule',
+      icon: <ScheduleOutlined />,
+      label: 'Daily Schedule',
     },
     {
-      key: 'users',
-      icon: <UserOutlined />,
-      label: 'Users',
+      key: 'family-members',
+      icon: <TeamOutlined />,
+      label: 'Family Members',
+    },
+    {
+      key: 'financial-tracker',
+      icon: <DollarOutlined />,
+      label: 'Financial Tracker',
     },
     {
       key: 'settings',
@@ -81,8 +56,19 @@ const Sidebar = ({ collapsed, onCollapse }) => {
   ];
 
   const handleMenuClick = ({ key }) => {
-    console.log('Menu item clicked:', key);
-    // Handle navigation logic here
+    const routes = {
+      'dashboard': '/',
+      'medical-reports': '/medical-reports',
+      'appointments': '/appointments',
+      'daily-schedule': '/daily-schedule',
+      'family-members': '/family-members',
+      'financial-tracker': '/financial-tracker',
+      'settings': '/settings'
+    };
+    
+    if (routes[key]) {
+      navigate(routes[key]);
+    }
   };
 
   return (
@@ -126,7 +112,7 @@ const Sidebar = ({ collapsed, onCollapse }) => {
       <Menu
         theme="dark"
         mode="inline"
-        defaultSelectedKeys={['dashboard']}
+        selectedKeys={[location.pathname === '/' ? 'dashboard' : location.pathname.slice(1)]}
         items={menuItems}
         onClick={handleMenuClick}
         style={{
