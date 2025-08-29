@@ -1,17 +1,17 @@
-# Inventory Management System
+# Family Task Management System
 
-A modern inventory management system built with React, Vite, Ant Design, Firebase, TanStack React Query, and Axios.
+A comprehensive React.js application designed to manage family tasks, medical records, appointments, daily schedules, and financial tracking. Built with modern web technologies and optimized for family collaboration.
 
 ## Features
 
-- 📊 **Dashboard** - Overview of inventory statistics and recent activities
-- 📦 **Product Management** - Add, edit, delete, and manage products
-- 🏢 **Categories & Suppliers** - Organize products by categories and suppliers
-- 📋 **Order Management** - Handle purchase and sales orders
-- 📈 **Reports** - Generate inventory and sales reports
-- 👥 **User Management** - Manage system users and permissions
-- 🔒 **Authentication** - Secure login system with Firebase Auth
-- 📱 **Responsive Design** - Works on desktop and mobile devices
+- 👥 **Family Management** - Manage all family members with roles and responsibilities
+- 🏥 **Medical Records** - Store and track health reports, appointments, and medications
+- 📅 **Appointments** - Schedule and manage medical appointments with calendar view
+- ⏰ **Daily Schedule** - Assign and track daily tasks with priority management
+- 💰 **Financial Tracker** - Track income, expenses, and shared costs among family
+- 📊 **Dashboard** - Comprehensive overview of family activities and statistics
+- 🔒 **Role-based Access** - Different permissions for different family members
+- 📱 **Responsive Design** - Works on desktop, tablet, and mobile devices
 
 ## Tech Stack
 

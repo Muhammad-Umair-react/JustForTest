@@ -56,7 +56,7 @@ const Header = () => {
       }}
     >
       <Title level={3} style={{ margin: 0, color: '#1890ff' }}>
-        Inventory Management
+        Family Task Management System
       </Title>
       
       <Space>
@@ -69,7 +69,7 @@ const Header = () => {
         >
           <Space style={{ cursor: 'pointer' }}>
             <Avatar icon={<UserOutlined />} />
-            <span>Admin User</span>
+            <span>Admin (You)</span>
           </Space>
         </Dropdown>
       </Space>
